@@ -2,63 +2,531 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Código QR - NeuroEduca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeuroEduca | Plataforma TDAH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom Premium Styles */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #cbd5e1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: radial-gradient(circle at top right, #e0e7ff, #fae8ff, #ecfdf5);
+            background-attachment: fixed;
             min-height: 100vh;
-            margin: 0;
+            -webkit-tap-highlight-color: transparent; 
         }
-        .qr-card {
-            background: white;
-            border-radius: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            padding: 3rem;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            border: 1px solid #e2e8f0;
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
         }
-        .qr-container {
-            background: white;
-            padding: 1rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 2px solid #f8fafc;
-            display: inline-block;
-            margin-bottom: 2rem;
+        
+        /* Optimización de Toque */
+        button, .simon-btn, .cursor-pointer {
+            touch-action: manipulation;
         }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (hover: hover) {
+            .glass-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                background: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Tabs */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-in-out;
+        }
+        .tab-active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+            50% { box-shadow: 0 0 20px 10px rgba(52, 211, 153, 0); }
+        }
+
+        /* Reflex & Simon Games */
+        #reflexTarget { transition: all 0.1s ease; }
+        .simon-active {
+            background-color: #d946ef !important; 
+            box-shadow: 0 0 25px rgba(217, 70, 239, 0.7);
+            transform: scale(0.92);
+            border-color: #f0abfc !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="text-slate-800 antialiased selection:bg-indigo-200 selection:text-indigo-900">
 
-    <div class="qr-card">
-        <!-- Encabezado -->
-        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
-            📱
+    <!-- Navbar Adaptativo -->
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg shrink-0">
+                    N
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-800 to-purple-800 font-heading tracking-tight">
+                    NeuroEduca
+                </h1>
+            </div>
+            
+            <!-- Botones de Navegación -->
+            <div class="w-full md:w-auto flex flex-wrap justify-center bg-white/50 p-1.5 rounded-2xl md:rounded-full border border-white gap-1">
+                <button onclick="showTab('games', this)" class="tab-btn active px-3 sm:px-5 py-2 rounded-xl md:rounded-full text-xs sm:text-sm font-semibold text-indigo-900 bg-white shadow-sm transition-all flex-1 text-center whitespace-nowrap">🎮 Mini-Juegos</button>
+                <button onclick="showTab('folleto', this)" class="tab-btn px-3 sm:px-5 py-2 rounded-xl md:rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-indigo-900 transition-all flex-1 text-center whitespace-nowrap">📖 Folleto TDAH</button>
+                <button onclick="showTab('info', this)" class="tab-btn px-3 sm:px-5 py-2 rounded-xl md:rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-indigo-900 transition-all flex-1 text-center whitespace-nowrap">🧠 Enfoque</button>
+            </div>
         </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-36 md:pt-28 pb-20 overflow-x-hidden">
         
-        <h2 class="text-2xl font-extrabold text-slate-800 mb-2 tracking-tight">NeuroEduca TDAH</h2>
-        <p class="text-slate-500 text-sm mb-8">Escanea este código con la cámara de tu celular para acceder a la plataforma de mini-juegos interactivos.</p>
+        <!-- PESTAÑA 1: MINI-JUEGOS (Por defecto) -->
+        <div id="games" class="tab-content tab-active">
+            <div class="text-center mb-8 sm:mb-12 animate-float">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 font-heading mb-2 sm:mb-4">Zona de Alto Enfoque</h2>
+                <p class="text-sm sm:text-base text-slate-600 px-4 max-w-2xl mx-auto">Completa los retos interactivos para entrenar tu mente, mejorar tu memoria de trabajo y practicar el control de impulsos.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                <!-- 1. Cronómetro de Precisión -->
+                <div class="glass-card p-5 sm:p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl transition-all"></div>
+                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 z-10 text-center">Control de Impulsos</span>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 z-10 text-slate-800 text-center">El Reto del Segundo</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 text-center mb-4 z-10">Detén el tiempo exactamente en 5.00s</p>
+                    <div class="w-full bg-white rounded-2xl p-4 text-center shadow-inner mb-4 z-10 border border-slate-100">
+                        <div id="timer" class="text-4xl sm:text-5xl font-mono font-bold text-indigo-600">0.00</div>
+                    </div>
+                    <button onclick="toggleTimer()" id="btnTimer" class="z-10 w-full bg-slate-900 active:bg-indigo-600 sm:hover:bg-indigo-600 text-white font-medium py-3 rounded-xl transition-colors shadow-md text-sm">Comenzar</button>
+                </div>
 
-        <!-- Código QR generado por API -->
-        <div class="qr-container">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://beatschill742-crypto.github.io/farma/" alt="Código QR NeuroEduca" class="w-full h-auto rounded-xl">
+                <!-- 2. Secuencia de Memoria -->
+                <div class="glass-card p-5 sm:p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl transition-all"></div>
+                    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 z-10 text-center">Memoria de Trabajo</span>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 z-10 text-slate-800 text-center">Secuencia Animal</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 text-center mb-4 z-10">Memoriza los animales y su orden exacto</p>
+                    <div class="w-full bg-white rounded-2xl p-4 text-center shadow-inner mb-4 z-10 min-h-[90px] flex items-center justify-center border border-slate-100">
+                        <div id="memoryArea" class="flex gap-2 justify-center items-center text-3xl sm:text-4xl transition-all w-full">
+                            <span class="opacity-30">?</span><span class="opacity-30">?</span><span class="opacity-30">?</span>
+                        </div>
+                    </div>
+                    <button onclick="startMemory()" class="z-10 w-full bg-purple-600 active:bg-purple-500 sm:hover:bg-purple-500 text-white font-medium py-3 rounded-xl transition-colors shadow-md text-sm">Memorizar</button>
+                </div>
+
+                <!-- 3. Reflejos Rayo -->
+                <div class="glass-card p-5 sm:p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group sm:col-span-2 lg:col-span-1">
+                    <div class="absolute inset-0 bg-emerald-500/5 blur-3xl transition-all"></div>
+                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 z-10 text-center">Atención Sostenida</span>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 z-10 text-slate-800 text-center">Cazador de Orbes</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 text-center mb-4 z-10">Atrapa el orbe verde en cuanto aparezca</p>
+                    <div id="gameArena" class="w-full h-28 bg-slate-100 rounded-2xl relative overflow-hidden shadow-inner mb-4 z-10 border border-slate-200">
+                        <div id="reflexStartBtn" onclick="startReflexGame()" class="absolute inset-0 flex items-center justify-center cursor-pointer active:bg-slate-200 transition-colors">
+                            <span class="text-slate-500 font-medium text-sm">Toca para iniciar</span>
+                        </div>
+                        <div id="reflexTarget" onclick="catchOrb(event)" class="absolute w-10 h-10 bg-gradient-to-tr from-emerald-400 to-teal-400 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.5)] cursor-pointer hidden flex items-center justify-center text-white text-sm" style="animation: pulse-glow 2s infinite;">✨</div>
+                    </div>
+                    <div id="reflexScore" class="z-10 text-xs sm:text-sm font-bold text-emerald-600 h-5 text-center"></div>
+                </div>
+
+                <!-- 4. El Intruso Visual -->
+                <div class="glass-card p-5 sm:p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group sm:col-span-2 lg:col-span-3">
+                    <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 z-10 text-center">Atención Selectiva</span>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 z-10 text-slate-800 text-center">El Intruso Elegante</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 text-center mb-4 z-10">Encuentra al elemento diferente lo más rápido posible.</p>
+                    <div id="findGrid" class="w-full max-w-md bg-white p-4 rounded-2xl shadow-inner flex flex-wrap justify-center gap-2 sm:gap-4 z-10 border border-slate-100">
+                        <button onclick="startGameIntruso()" class="bg-amber-500 active:bg-amber-400 text-white font-medium py-3 px-8 rounded-xl transition-colors shadow-md text-sm w-full sm:w-auto">Cargar Nivel</button>
+                    </div>
+                </div>
+
+                <!-- 5. Secuencia Estelar (Simon Dice) -->
+                <div class="glass-card p-5 sm:p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group sm:col-span-2 lg:col-span-3">
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-fuchsia-500/10 rounded-full blur-3xl transition-all"></div>
+                    <span class="bg-fuchsia-100 text-fuchsia-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 z-10 text-center">Memoria Avanzada</span>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 z-10 text-slate-800 text-center">Secuencia Estelar</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 text-center mb-4 z-10">Repite el patrón de luces. ¡Se vuelve más complejo!</p>
+                    <div class="relative z-10 w-full max-w-sm flex flex-col items-center">
+                        <div class="flex justify-between w-full px-2 mb-3">
+                            <span class="text-xs sm:text-sm font-bold text-slate-500">Nivel: <span id="simonLevel" class="text-fuchsia-600 font-extrabold text-base">1</span></span>
+                            <span id="simonStatus" class="text-xs sm:text-sm font-medium text-slate-400">Espera...</span>
+                        </div>
+                        <div id="simonGrid" class="grid grid-cols-3 gap-2 sm:gap-3 bg-white/60 p-4 rounded-3xl shadow-inner border border-slate-100 pointer-events-none opacity-50 transition-opacity">
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(0)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(1)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(2)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(3)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(4)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(5)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(6)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(7)"></button>
+                            <button class="simon-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-100 shadow-sm border border-slate-200 transition-all duration-200" onclick="handleSimonClick(8)"></button>
+                        </div>
+                        <button onclick="startSimonGame()" id="btnSimonStart" class="mt-5 bg-fuchsia-600 active:bg-fuchsia-500 text-white font-medium py-3 px-8 rounded-xl shadow-md w-full text-sm">Iniciar Secuencia</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Pie de tarjeta -->
-        <div class="border-t border-slate-100 pt-6">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Proyecto Académico</p>
-            <p class="text-sm font-medium text-slate-600 mt-1">Ana Carolina Said Ruiz</p>
+        <!-- PESTAÑA 2: FOLLETO DIGITAL -->
+        <div id="folleto" class="tab-content">
+            <div class="text-center mb-10">
+                <span class="px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 font-bold text-[10px] sm:text-xs tracking-wider uppercase mb-4 inline-block">Guía para Padres y Educadores</span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 font-heading mb-4">Entendiendo el TDAH<br>y su Tratamiento</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto">Una explicación científica y humana sobre la neurodiversidad y el papel de la psicofarmacología infantil.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Sección 1 -->
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-t-indigo-500">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-xl">🧩</div>
+                        <h3 class="text-2xl font-bold text-slate-800 font-heading">¿Qué es el TDAH?</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">El Trastorno por Déficit de Atención e Hiperactividad <b>no es una invención social</b> ni producto de "mala crianza". Es una condición de origen neurobiológico comprobado.</p>
+                    <p class="text-slate-600 text-sm leading-relaxed">Las investigaciones muestran una maduración atípica en la <b>corteza prefrontal</b> y los ganglios basales del cerebro, áreas encargadas de las funciones ejecutivas: planificar, inhibir impulsos y mantener la memoria de trabajo.</p>
+                </div>
+
+                <!-- Sección 2 -->
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-t-emerald-500">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-xl">💊</div>
+                        <h3 class="text-2xl font-bold text-slate-800 font-heading">¿Cómo actúa el fármaco?</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">En el cerebro con TDAH, existe una deficiencia de neurotransmisores (Dopamina y Noradrenalina) en el espacio sináptico.</p>
+                    <p class="text-slate-600 text-sm leading-relaxed">Medicamentos como el metilfenidato actúan bloqueando la recaptación de estas sustancias, permitiendo que estén más tiempo disponibles. Esto "despierta" las áreas del cerebro que frenan la impulsividad y regulan la atención.</p>
+                </div>
+
+                <!-- Sección 3 (Ancho completo) -->
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-t-purple-500 md:col-span-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-xl">🤝</div>
+                        <h3 class="text-2xl font-bold text-slate-800 font-heading">El Enfoque Multimodal (La regla de oro)</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">La medicación exclusiva <b>no es suficiente ni ética a largo plazo</b>. La pastilla otorga una "ventana de oportunidad biológica", pero no enseña habilidades. El tratamiento integral debe incluir:</p>
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div class="bg-white/50 p-4 rounded-xl border border-white">
+                            <h4 class="font-bold text-purple-800 mb-2">1. Psicoeducación</h4>
+                            <p class="text-xs text-slate-600">Capacitar a los padres en técnicas de modificación conductual y comunicación positiva.</p>
+                        </div>
+                        <div class="bg-white/50 p-4 rounded-xl border border-white">
+                            <h4 class="font-bold text-purple-800 mb-2">2. Apoyo Escolar</h4>
+                            <p class="text-xs text-slate-600">Adaptaciones curriculares sin coercionar a la familia a medicar por conveniencia de la escuela.</p>
+                        </div>
+                        <div class="bg-white/50 p-4 rounded-xl border border-white">
+                            <h4 class="font-bold text-purple-800 mb-2">3. Terapia</h4>
+                            <p class="text-xs text-slate-600">Entrenamiento psicológico para fomentar la resiliencia emocional y las habilidades sociales del niño.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 3: INFO CIENTÍFICA (Enfoque) -->
+        <div id="info" class="tab-content">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 font-heading mb-4">El Porqué de los Juegos</h2>
+                <p class="text-base text-slate-600 max-w-2xl mx-auto">Justificación clínica de las actividades de NeuroEduca.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-[2rem] text-center">
+                    <div class="text-4xl mb-4">🧠</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Neuroplasticidad</h3>
+                    <p class="text-slate-500 text-sm">Los ejercicios visuales fortalecen las conexiones en la corteza prefrontal, área responsable de la planificación.</p>
+                </div>
+                <div class="glass-card p-6 rounded-[2rem] text-center">
+                    <div class="text-4xl mb-4">⚖️</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Autorregulación</h3>
+                    <p class="text-slate-500 text-sm">Las dinámicas de control de impulsos enseñan a pausar antes de actuar, reduciendo la ansiedad.</p>
+                </div>
+                <div class="glass-card p-6 rounded-[2rem] text-center sm:col-span-2 md:col-span-1">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Atención Sostenida</h3>
+                    <p class="text-slate-500 text-sm">Minijuegos de concentración progresiva que ayudan al cerebro a mantener el foco en tareas específicas.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Feedback -->
+    <div id="successModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden px-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="bg-white p-6 sm:p-8 rounded-[2rem] shadow-2xl z-10 max-w-sm w-full text-center transform scale-95 opacity-0 transition-all duration-300 relative" id="modalContent">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🎉</div>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2 font-heading" id="modalTitle">¡Excelente!</h2>
+            <p class="text-sm text-slate-600 mb-6" id="modalDesc">Has completado el reto con éxito.</p>
+            <button onclick="closeModal()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl active:bg-slate-800 transition-colors text-sm">Continuar</button>
         </div>
     </div>
 
+    <script>
+        // --- Navegación adaptativa ---
+        function showTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-indigo-900', 'shadow-sm', 'font-semibold');
+                btn.classList.add('text-slate-500', 'font-medium');
+            });
+
+            setTimeout(() => document.getElementById(tabId).classList.add('tab-active'), 50);
+
+            btnElement.classList.remove('text-slate-500', 'font-medium');
+            btnElement.classList.add('bg-white', 'text-indigo-900', 'shadow-sm', 'font-semibold');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Modal System ---
+        function showModal(title, desc, emoji = '🎉') {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('modalContent');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            content.querySelector('div').innerText = emoji;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // --- Juego 1: Cronómetro ---
+        let startTime, timerInterval;
+        function toggleTimer() {
+            const btn = document.getElementById('btnTimer');
+            const display = document.getElementById('timer');
+            
+            if(timerInterval) { 
+                clearInterval(timerInterval); 
+                timerInterval = null; 
+                btn.innerText = "Reintentar"; 
+                btn.classList.replace('bg-rose-500', 'bg-slate-900');
+                
+                const finalTime = parseFloat(display.innerText);
+                if(finalTime >= 4.90 && finalTime <= 5.10) {
+                    showModal("¡Precisión Extrema!", `Lo detuviste en ${finalTime}s. ¡Tu control de impulsos es increíble!`, "🎯");
+                    display.classList.replace('text-indigo-600', 'text-emerald-500');
+                } else {
+                    display.classList.replace('text-indigo-600', 'text-rose-500');
+                }
+            } else { 
+                display.classList.remove('text-emerald-500', 'text-rose-500');
+                display.classList.add('text-indigo-600');
+                startTime = Date.now(); 
+                timerInterval = setInterval(() => display.innerText = ((Date.now() - startTime)/1000).toFixed(2), 10); 
+                btn.innerText = "¡DETENER AHORA!"; 
+                btn.classList.replace('bg-slate-900', 'bg-rose-500');
+            }
+        }
+
+        // --- Juego 2: Memoria Animal ---
+        function startMemory() {
+            const area = document.getElementById('memoryArea');
+            const allAnimals = ['🦊', '🦉', '🐸', '🦄', '🐝', '🐞', '🐙', '🦖'];
+            let selected = [];
+            while(selected.length < 3) {
+                let random = allAnimals[Math.floor(Math.random() * allAnimals.length)];
+                if(!selected.includes(random)) selected.push(random);
+            }
+            
+            area.innerHTML = '<span class="text-sm sm:text-base text-slate-500 animate-pulse w-full text-center">Observa bien...</span>';
+            setTimeout(() => area.innerHTML = selected.map(a => `<span class="transform scale-110">${a}</span>`).join(''), 1000);
+            setTimeout(() => {
+                area.innerHTML = `
+                    <span class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center shadow-inner text-2xl">?</span>
+                    <span class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center shadow-inner text-2xl">?</span>
+                    <span class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center shadow-inner text-2xl">?</span>
+                `;
+                setTimeout(() => showModal("¿Lo recuerdas?", `La secuencia era: ${selected.join(' - ')}. \n¡Sigue practicando!`, "🧠"), 500);
+            }, 3500);
+        }
+
+        // --- Juego 3: Reflejos Rayo ---
+        let reflexTimeout;
+        function startReflexGame() {
+            document.getElementById('reflexStartBtn').classList.add('hidden');
+            const target = document.getElementById('reflexTarget');
+            target.classList.add('hidden');
+            document.getElementById('reflexScore').innerText = "Atento...";
+            
+            clearTimeout(reflexTimeout);
+            reflexTimeout = setTimeout(() => {
+                const arena = document.getElementById('gameArena');
+                const arenaWidth = arena.offsetWidth;
+                const arenaHeight = arena.offsetHeight;
+                
+                const top = Math.max(0, Math.floor(Math.random() * (arenaHeight - 48))); 
+                const left = Math.max(0, Math.floor(Math.random() * (arenaWidth - 48)));
+                
+                target.style.top = `${top}px`;
+                target.style.left = `${left}px`;
+                target.classList.remove('hidden');
+                
+                target.dataset.spawnTime = Date.now();
+                document.getElementById('reflexScore').innerText = "¡AHORA!";
+                
+                target.dataset.timeoutId = setTimeout(() => {
+                    if(!target.classList.contains('hidden')) {
+                        target.classList.add('hidden');
+                        document.getElementById('reflexStartBtn').classList.remove('hidden');
+                        document.getElementById('reflexScore').innerText = "¡Se escapó! Intenta de nuevo.";
+                    }
+                }, 1500);
+            }, Math.floor(Math.random() * 2500) + 1000);
+        }
+
+        function catchOrb(e) {
+            e.stopPropagation(); e.preventDefault(); 
+            const target = document.getElementById('reflexTarget');
+            const spawnTime = target.dataset.spawnTime;
+            clearTimeout(target.dataset.timeoutId);
+            
+            target.classList.add('hidden');
+            document.getElementById('reflexStartBtn').classList.remove('hidden');
+            
+            const reactionTime = ((Date.now() - spawnTime) / 1000).toFixed(2);
+            document.getElementById('reflexScore').innerText = `Tiempo: ${reactionTime}s`;
+            
+            if(reactionTime < 0.6) showModal("¡Velocidad Luz!", `Reaccionaste en ${reactionTime} segundos.`, "⚡");
+        }
+
+        // --- Juego 4: El Intruso ---
+        function startGameIntruso() {
+            const grid = document.getElementById('findGrid');
+            const pairs = [{ normal: '🍎', intruso: '🍅' }, { normal: '🐶', intruso: '🦊' }, { normal: '🚙', intruso: '🚓' }, { normal: '☀️', intruso: '⭐' }];
+            const selectedPair = pairs[Math.floor(Math.random() * pairs.length)];
+            const intrusoIndex = Math.floor(Math.random() * 12);
+            
+            grid.innerHTML = '';
+            for(let i=0; i<12; i++) {
+                const isIntruso = (i === intrusoIndex);
+                const btn = document.createElement('button');
+                btn.className = "w-12 h-12 sm:w-16 sm:h-16 bg-slate-50 active:bg-slate-200 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-slate-200";
+                btn.innerText = isIntruso ? selectedPair.intruso : selectedPair.normal;
+                btn.onclick = () => checkFind(isIntruso);
+                grid.appendChild(btn);
+            }
+        }
+
+        function checkFind(isWinner) {
+            if(isWinner) {
+                showModal("¡Ojo de Águila!", "Encontraste al intruso correctamente.", "🕵️‍♂️");
+                startGameIntruso();
+            } else {
+                const score = document.createElement('p');
+                score.className = "absolute -top-6 left-1/2 transform -translate-x-1/2 text-rose-500 font-bold animate-bounce text-sm bg-white/80 px-2 rounded-full";
+                score.innerText = "¡Ese no es!";
+                document.getElementById('findGrid').appendChild(score);
+                setTimeout(() => score.remove(), 1200);
+            }
+        }
+
+        // --- Juego 5: Secuencia Estelar (Simon) ---
+        let simonSequence = [], playerSequence = [], simonLevel = 1;
+
+        function startSimonGame() {
+            simonSequence = []; playerSequence = []; simonLevel = 1;
+            document.getElementById('simonLevel').innerText = simonLevel;
+            document.getElementById('btnSimonStart').classList.add('hidden');
+            document.getElementById('simonGrid').classList.remove('pointer-events-none', 'opacity-50');
+            nextSimonRound();
+        }
+
+        function nextSimonRound() {
+            playerSequence = [];
+            simonSequence.push(Math.floor(Math.random() * 9));
+            document.getElementById('simonStatus').innerText = "Observa...";
+            document.getElementById('simonStatus').classList.replace('text-emerald-500', 'text-slate-400');
+            document.getElementById('simonGrid').classList.add('pointer-events-none');
+            playSimonSequence();
+        }
+
+        function playSimonSequence() {
+            let delay = 0;
+            simonSequence.forEach((index) => {
+                setTimeout(() => {
+                    const btn = document.querySelectorAll('.simon-btn')[index];
+                    btn.classList.add('simon-active');
+                    setTimeout(() => btn.classList.remove('simon-active'), 300);
+                }, delay);
+                delay += 600;
+            });
+            setTimeout(() => {
+                document.getElementById('simonStatus').innerText = "¡Tu turno!";
+                document.getElementById('simonStatus').classList.replace('text-slate-400', 'text-emerald-500');
+                document.getElementById('simonGrid').classList.remove('pointer-events-none');
+            }, delay);
+        }
+
+        function handleSimonClick(index) {
+            const btn = document.querySelectorAll('.simon-btn')[index];
+            btn.classList.add('simon-active');
+            setTimeout(() => btn.classList.remove('simon-active'), 300);
+            
+            playerSequence.push(index);
+            const curr = playerSequence.length - 1;
+            
+            if (playerSequence[curr] !== simonSequence[curr]) {
+                showModal("¡Fin del Juego!", `Llegaste al nivel ${simonLevel}.`, "🌌");
+                document.getElementById('btnSimonStart').classList.remove('hidden');
+                document.getElementById('btnSimonStart').innerText = "Intentar de Nuevo";
+                document.getElementById('simonGrid').classList.add('pointer-events-none', 'opacity-50');
+                return;
+            }
+            if (playerSequence.length === simonSequence.length) {
+                simonLevel++;
+                document.getElementById('simonLevel').innerText = simonLevel;
+                document.getElementById('simonGrid').classList.add('pointer-events-none');
+                document.getElementById('simonStatus').innerText = "¡Bien!";
+                setTimeout(nextSimonRound, 1000);
+            }
+        }
+    </script>
 </body>
 </html>
